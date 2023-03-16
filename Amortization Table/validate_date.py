@@ -1,5 +1,6 @@
 # date validation function for use in amortization table
 from datetime import datetime
+
 def validate_date(start_date):
     if isinstance(start_date, datetime):
         return True
