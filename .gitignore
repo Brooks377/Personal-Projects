@@ -5,6 +5,7 @@ __pycache__/
 
 # my additions
 Amortization Table/Loan_Graphs/*
+*.DS_Store
 
 # C extensions
 *.so
