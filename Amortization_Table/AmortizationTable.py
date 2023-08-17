@@ -24,7 +24,7 @@
 # TO ADD:
 # M-365 (365/365 or month-actual with 365 days instead of 360
 #
-# A pie graph that shows total amount paid in interest vs pricipal
+# A pie graph that shows total amount paid in interest vs principal
 #
 # add a folder for the imported functions and change the import path
 #
