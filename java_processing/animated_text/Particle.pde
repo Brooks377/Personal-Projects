@@ -28,7 +28,7 @@ public class Particle {
         PVector flee = flee(mouse);
 
         arrive.mult(1);
-        flee.mult(5);
+        flee.mult(8);
         
         applyForce(arrive);
         applyForce(flee);

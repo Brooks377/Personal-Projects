@@ -7,13 +7,13 @@ ArrayList<ArrayList<Particle>> particles;
 void setup() {
     background(0);
     frameRate(30);
-    size(1200, 500);
+    size(1450, 500);
     font = createFont("Times New Roman", 50, true);
     textFont(font);
     textSize(128);
     fill(255);
     noStroke();
-    String message = "Let's play remnant\n   you daft cunts!";
+    String message = "Coding is a good time!                           Let's party!";
     // text(message, 75, 200);
     
     characters = new ArrayList<>();
@@ -83,13 +83,13 @@ void saveCharacters() {
         }
         
         // acount for spaces
-        if (i == 4 || i == 9 || i == 25 || i == 30 || i == 37) {
-            XcharOffset += 30;
+        if (i == 5 || i == 8 || i == 11 || i == 15 || i == 53) {
+            XcharOffset += 35;
         }
         
         // acount for new lines
-        if (i == 17) {
-            YcharOffset = 150;
+        if (i == 21) {
+            YcharOffset = 175;
             XcharOffset = 0;
         }
         
