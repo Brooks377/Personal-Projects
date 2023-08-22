@@ -7,8 +7,8 @@ ArrayList<ArrayList<Particle>> particles;
 void setup() {
     background(0);
     frameRate(30);
-    size(1200, 500);
-    font = createFont("Arial", 50, true);
+    size(1300, 500);
+    font = createFont("Arial Bold", 50, true);
     textFont(font);
     textSize(128);
     fill(255);
@@ -31,7 +31,7 @@ void setup() {
         
         characters.add(edgeVerticies);   
     }
-
+    
     // save character vertex positions
     saveCharacters();
     
@@ -40,20 +40,18 @@ void setup() {
 void draw() {
     background(0);
     printCharacters();
-
+    
 }
 
 void printCharacters() {
-    for (ArrayList<Particle> letter : particles) {
+    for (ArrayList < Particle > letter : particles) {
         beginShape();
         for (Particle point : letter) {
             vertex(point.pos.x, point.pos.y);
             point.update();
             point.behavoirs();
-            // println(point.target);
-
         }
-        endShape(CLOSE);
+        endShape();
     }
 }
 
@@ -69,9 +67,9 @@ void saveCharacters() {
         particles.add(thisLetter);
         
         float charRightEdge = 0;
-
+        
         for (PVector v : characters.get(i)) {
-
+            
             float charX = v.x + 40 + XcharOffset;
             float charY = v.y + 200 + YcharOffset;
             PVector particlePos = new PVector(charX, charY);
