@@ -17,9 +17,9 @@ void setup() {
     size(800, 600);
     time = 0; // starting angle
     speed =.04;
-    maximumWaves = 10;
+    maximumWaves = 3;
     wave = new ArrayList<>();
-    menu = "Menu\n - Shift + 1 = Square Wave\n - Shift + 2 = Sawtooth Wave\n - Shift + 3 = Triangular Wave\n - Shift + Q = Stop current model\nEnter your choice by typing Shift + number";
+    menu = "Menu\n - Shift + 1 = Square Wave\n - Shift + 2 = Sawtooth Wave\n - Shift + 3 = Triangular Wave\n - Shift + Q = Stop current model";
     settings = "Settings\n - Down Arrow = Reduce amount of additive waves\n - Up Arrow = Increase amount of additive waves\n - Right Arrow = Increase speed\n - Left Arrow = Decrease speed\n";
     userChoice = 'Q';
     
@@ -34,7 +34,7 @@ void draw() {
     background(0);
     text(menu, 20, 20);
     text(settings, 500, 20);
-    text(stats, 325, 50);
+    text(stats, 300, 50);
     translate(200, 300);
     
     // select which series to visualize
@@ -58,10 +58,10 @@ void draw() {
                 break;
             // select maxWaves & speed
             case RIGHT:
-                speed +=.005;
+                speed +=.0025;
                 break;
             case LEFT:
-                speed -=.005;
+                speed -=.0025;
                 break;
             case UP:
                 maximumWaves += 1;
