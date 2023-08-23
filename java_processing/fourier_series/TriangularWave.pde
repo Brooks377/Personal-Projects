@@ -1,8 +1,8 @@
-public class SquareWave {
-
+public class TriangularWave {
+    
     int maxWaves;
-
-    public SquareWave(int maxWaves) {
+    
+    public TriangularWave(int maxWaves) {
         this.maxWaves = maxWaves;
     }
     
@@ -14,12 +14,12 @@ public class SquareWave {
             float prevX = x;
             float prevY = y;
             
-            // odd number series
+            // odd number series (same as square wave)
             int n = (i * 2) + 1;
             // calculate point going around circle iteratively
-            float radius = (float)(75 * (4 / (n * Math.PI)));
-            x +=radius * cos(n * time);
-            y +=radius * sin(n * time);
+            float radius = (float)(75 * ((8.0 / (Math.PI * Math.PI)) * ((Math.pow(-1.0, ((n - 1.0) / 2.0))) / (n * n))));
+            x += radius * cos(n * time);
+            y += radius * sin(n * time);
             
             // base circle
             noFill();
@@ -34,8 +34,8 @@ public class SquareWave {
         // draw line from circle to wave
         line(x, y, 200, y);
         // increment time
-        time+= speed;    // theta angle in the circle == time
-
+        time += speed;    // theta angle in the circle == time
+        
         return y;
     }
 }
