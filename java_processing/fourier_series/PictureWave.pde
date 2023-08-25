@@ -1,17 +1,15 @@
 public class PictureWave {
     
-    int maxWaves;
+    int skip;
     
-    public PictureWave(int maxWaves) {
-        this.maxWaves = maxWaves;
+    public PictureWave(int skip) {
+        this.skip = skip;
     }
     
     public PVector findWaveValue(float x, float y, float rotation, ArrayList<DiscreteFreq> fourier) {
-        // float x = 0;
-        // float y = 0;
 
-        // loop through however many waves we need
-        for (int i = 0; i < fourier.size(); i++) {
+        // loop through however many waves we want
+        for (int i = 0; i < fourier.size(); i += skip) {
             float prevX = x;
             float prevY = y;
             
@@ -34,15 +32,12 @@ public class PictureWave {
             stroke(255);
             line(prevX, prevY, x, y);
         }
-        // // draw line from circle to wave
-        // line(x, y, 200, y);
 
         // increment time
         float dt = TWO_PI / fourier.size();
         time += dt;    // time is dt for artbitrary wave/signal
 
-        if (time > TWO_PI) {
-            delay(1000);
+        if (time > (2 *TWO_PI)) {
             time = 0;
             path = new ArrayList<>();
         }
