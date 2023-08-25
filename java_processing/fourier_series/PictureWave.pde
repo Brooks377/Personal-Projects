@@ -42,6 +42,7 @@ public class PictureWave {
         time += dt;    // time is dt for artbitrary wave/signal
 
         if (time > TWO_PI) {
+            delay(1000);
             time = 0;
             path = new ArrayList<>();
         }

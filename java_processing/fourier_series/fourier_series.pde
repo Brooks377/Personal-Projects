@@ -48,7 +48,7 @@ void setup() {
     maximumWaves = 3;
     wave = new ArrayList<>();
     path = new ArrayList<>();   // for user-defined path
-    menu = "Menu\n - Shift + 1 = Square Wave\n - Shift + 2 = Sawtooth Wave\n - Shift + 3 = Triangular Wave\n - Shift + 4 = DFT to make picture (Default: Random Noise)\n - Shift + 9 = Enter Create Picture Mode (Draw on-screen with mouse click)\n - Shift + Q = Stop current model";
+    menu = "Menu\n - Shift + 1 = Square Wave\n - Shift + 2 = Sawtooth Wave\n - Shift + 3 = Triangular Wave\n - Shift + 4 = DFT to make picture (Default: Random Noise)\n - Shift + 9 = Enter Create Picture Mode (Draw on-screen with mouse click)\n - Shift + Q = Stop current model (Default Mode)";
     settings = "Settings\n - Down Arrow = Reduce amount of additive waves\n - Up Arrow = Increase amount of additive waves\n - Right Arrow = Increase speed\n - Left Arrow = Decrease speed\n";
     userChoice = 'Q';
     
@@ -66,7 +66,7 @@ void draw() {
     text(stats, 250, 20);
     text(menu, 20, 20);
     if (userChoice != '4') {
-        text(settings, 500, 20);
+        text(settings, 520, 20);
     }
     translate(200, 300);
     
