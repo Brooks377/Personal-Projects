@@ -29,7 +29,7 @@ void setup() {
     time = 0; // starting angle
     speed = .04;
     maximumWaves = 3;
-    skip = 15;
+    skip = 8;
     wave = new ArrayList<>();
     path = new ArrayList<>();   // for user-defined path
     picture = new PictureWave(skip);
@@ -133,7 +133,7 @@ void draw() {
                 break;
             case UP:
                 maximumWaves += 1;
-                if (skip < 20) {
+                if (userChoice == '4' && skip < 15) {
                     skip += 1;
                     picture = new PictureWave(skip);
                     fourierX = picture.dft(pictureX); // peform transform
@@ -150,7 +150,7 @@ void draw() {
                 if (maximumWaves > 1) {
                     maximumWaves -= 1;
                 }
-                if (skip > 1) {
+                if (userChoice == '4' && skip > 1) {
                     skip -= 1;
                     picture = new PictureWave(skip);
                     fourierX = picture.dft(pictureX); // peform transform
@@ -244,7 +244,7 @@ void mapAndDraw(PVector point) {
     // drawing wave function
     noFill();
     beginShape();
-    for (int i = 0; i < path.size(); i++) {
+    for (int i = 1; i < path.size(); i++) {
         vertex(path.get(i).x, path.get(i).y);
     }
     endShape();
