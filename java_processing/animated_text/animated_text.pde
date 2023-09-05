@@ -13,8 +13,7 @@ void setup() {
     textSize(128);
     fill(255);
     noStroke();
-    String message = "Coding is a good time!                           Let's party!";
-    // text(message, 75, 200);
+    String message = "Play something other                            than kirby";
     
     characters = new ArrayList<>();
     particles = new ArrayList<>();
@@ -83,12 +82,12 @@ void saveCharacters() {
         }
         
         // acount for spaces
-        if (i == 5 || i == 8 || i == 11 || i == 15 || i == 53) {
+        if (i == 4 || i == 14 || i == 20 || i == 52) {
             XcharOffset += 35;
         }
         
         // acount for new lines
-        if (i == 21) {
+        if (i == 20) {
             YcharOffset = 175;
             XcharOffset = 0;
         }
