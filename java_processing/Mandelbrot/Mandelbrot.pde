@@ -24,10 +24,13 @@ void draw() {
     line(0, height, 0, -height); // y-axis
     line(width, 0, -width, 0); // x-axis
     
+    // ----------------------------------------
+    // SOME DEBUG STUFF
     // println(startingPoint.x, startingPoint.y);
     // println(complexStart.x + " + " + complexStart.y + "i");
     // println(drawPoints);
-    println(drawPoints.size());
+    // println(drawPoints.size());
+    // ----------------------------------------
     
     noFill();
     circle(0, 0, 200);
