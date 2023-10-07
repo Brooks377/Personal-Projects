@@ -7,7 +7,7 @@ int drawIndex;
 
 void setup() {
     size(1000, 1000);
-
+    
     // data members
     startingPoint = new PVector(0, 0);
     complexStart = new PVector(0, 0);
@@ -39,11 +39,11 @@ void draw() {
 void mousePressed() {
     // input point from where you click
     drawPoints = new ArrayList<>();
-    startingPoint = new PVector(mouseX - 500, -(mouseY - 500));   
+    startingPoint = new PVector(mouseX - 500, -(mouseY - 500));
+    // begin drawing list with that position
     complexStart = mapAxesToComplex(startingPoint);
-    
     drawPoints.add(complexStart);
-    
+    // create the rest of the list with recursive method
     drawIndex = 0;
     fillDrawList(complexStart);
 }
@@ -64,7 +64,7 @@ public PVector mapAxesToComplex(PVector p) {
 }
 
 public PVector mapComplexToAxes(PVector p) {
-    return new PVector(p.x * 100, - p.y * 100);
+    return new PVector(p.x * 100, -p.y * 100);
 }
 
 public PVector complexMultiply(PVector p1, PVector p2) {
