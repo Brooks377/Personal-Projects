@@ -3,14 +3,23 @@ PVector complexStart;
 PVector additivePoint;
 PVector complexAdditive;
 ArrayList<PVector> drawPoints; // in complex form
-color[] storePixels;
+color[] storePixels; // not rlly needed anymore
+PVector zoomPointAxes;
+PVector zoomPoint;
 
 int linesNum;
 int drawIndex;
 float scaleVal;
 boolean MBactive;
+boolean zoomActive;
+boolean axesOn;
 
-// TODO: allow zooming mode
+float beforeZoom, afterZoom, zoomDist;
+PVector[] scaleStore;
+
+// TODO: Increase performance
+// TODO: Increase allowed zoom distance (currently gets pixelated)
+// TODO: for the future: julia sets or set mapping
 
 void setup() {
     size(1000, 1000);
@@ -24,11 +33,22 @@ void setup() {
     complexAdditive = new PVector(0, 0);
     drawPoints = new ArrayList<>();
     storePixels = new color[(width * height)];
+    zoomPointAxes = new PVector();
+    zoomPoint = new PVector();
+    scaleStore = new PVector[2];
+    for (int i = 0; i < scaleStore.length; i++) {
+        scaleStore[i] = new PVector();
+    }
     
     linesNum = 100;
     scaleVal = 2.5;
     drawIndex = 0;
     MBactive = false;
+    zoomActive = false;
+    axesOn = true;
+    beforeZoom = 0.0;
+    afterZoom = 0.0;
+    zoomDist = 1;
 }
 
 void draw() {
@@ -38,32 +58,26 @@ void draw() {
     scale(scaleVal);
     
     if (MBactive) {
-        for (int i = 0; i < (height * width); i++) {
-            pixels[i] = storePixels[i];
-        }
-        updatePixels();
+        paintMBSet();
     }
     
     stroke(255);
     line(0, height, 0, -height); // y-axis
     line(width, 0, -width, 0); // x-axis
-
+    
     // add axes labels
-    if (MBactive) {
-        fill(0);
+    fill(255);
+    if (axesOn) {
+        text("i", 6, -96);
+        line( -3, -100, 3, -100);
+        text("-i", 6, 105);
+        line( -3, 100, 3, 100);
+        
+        text("1", 97, 12);
+        line(100, -3, 100, 3);
+        text("-1", -103, 12);
+        line( -100, -3, -100, 3);
     }
-    text("i", 6, -96);
-    line(-3, -100, 3, -100);
-    text("-i", 6, 105);
-    line(-3, 100, 3, 100);
-
-    text("1", 97, 12);
-    line(100, -3, 100, 3);
-    if (MBactive) {
-        fill(255);
-    }
-    text("-1", -103, 12);
-    line(-100, -3, -100, 3);
     
     // ----------------------------------------
     // SOME DEBUG STUFF
@@ -73,6 +87,7 @@ void draw() {
     // println(drawPoints.size());
     // println(additivePoint);
     // println(mouseX, mouseY);
+    // println(zoomPoint);
     // ----------------------------------------
     
     // input point from where you click
@@ -83,7 +98,7 @@ void draw() {
     drawIndex = 0;
     fillDrawList(complexStart, complexAdditive);
     
-    // if holding shift when clicking, set the additive C value
+    // user input block
     if (keyPressed && mousePressed) {
         if (key == CODED) {
             if (keyCode == SHIFT) {
@@ -110,9 +125,44 @@ void draw() {
     } else if (keyPressed) {
         // paints MB when shift + 'M' are held down
         if (key == 'M') {
-            paintMBSet();
+            MBactive = true;
+        }
+        
+        if (key == 'Z') {
+            zoomActive = true;
+            zoomPointAxes = new PVector((mouseX - 500) / scaleVal,( -(mouseY - 500)) / scaleVal);
+            zoomPoint = mapAxesToComplex(zoomPointAxes);
+            
+        }
+        
+        if (key == '-') {
+            zoomDist -= 5;
+        }
+        
+        if (key == '=') {
+            zoomDist += 5;
+        }
+        
+        if (key == CODED) {
+            float incValX = (scaleStore[1].x - scaleStore[0].x) / 100;
+            float incValY = (scaleStore[0].y - scaleStore[1].y) / 100;
+            switch(keyCode) {
+                case UP:
+                    zoomPoint.y += incValY;
+                    break;
+                case DOWN:
+                    zoomPoint.y -= incValY;
+                    break;
+                case RIGHT:
+                    zoomPoint.x += incValX;
+                    break;
+                case LEFT:
+                    zoomPoint.x -= incValX;
+                    break;
+            }
         }
     }
+    
     fill(220, 170, 0);
     point(additivePoint.x, -additivePoint.y);
     
@@ -134,16 +184,22 @@ void keyPressed() {
     if (key == 'R') {
         loop();
     }
-
+    
     if (key == 'C') {
         MBactive = false;
+        zoomActive = false;
+        zoomPoint = new PVector();
+        zoomDist = 0;
+    }
+    
+    if (key == 'X') {
+        axesOn = !axesOn;
     }
 }
 
 public void paintMBSet() {
-    MBactive = true;
     float maxMag = 2.0;
-    int maxRecursions = 30;
+    int maxRecursions = 100;
     loadPixels();
     for (int i = 0; i < (width * height); i++) {
         PVector c = convertPixeltoComplex(i);
@@ -152,6 +208,13 @@ public void paintMBSet() {
         color pointColor = color(0, 0, 0);
         PVector z = new PVector(0, 0);
         int j = 0;
+        
+        if (i == 0) {
+            scaleStore[0] = new PVector(c.x, c.y);
+        } else if (i == 999999) {
+            scaleStore[1] = new PVector(c.x, c.y);
+        }
+        
         for (j = 0; j < maxRecursions; j++) {
             z = complexMultiply(z, z);
             z = complexAdd(z, c);
@@ -163,20 +226,22 @@ public void paintMBSet() {
         if (j == maxRecursions) {
             pixels[i] = pointColor;
         } else {
-            pixels[i] = color((map(j, 0, maxRecursions, 20, 255)), 255, 255);
+            pixels[i] = color((map(j, 0, maxRecursions, 10, 255)), 255, 255);
         }
-        storePixels[i] = pixels[i];
+        storePixels[i] = pixels[i]; // FIXME
     }
     updatePixels();
-    noLoop();
 }
 
 public PVector convertPixeltoComplex(int i) {
-    int dim = 2;
+    if (!zoomActive) {
+        zoomPoint.set(0, 0);
+    }
+    float dim = (float)(2.0 / Math.pow(1.05, zoomDist));
     int row = i % 1000;
     int col = i / 1000;
-    float a = -dim + (((dim + dim) / 1000.0) * row);
-    float b = dim - (((dim + dim) / 1000.0) * col);
+    float a = zoomPoint.x + ( -dim) + (((dim + dim) / 1000.0) * row);
+    float b = zoomPoint.y + dim - (((dim + dim) / 1000.0) * col);
     PVector complexOutput = new PVector(a, b);
     return complexOutput;
 }
