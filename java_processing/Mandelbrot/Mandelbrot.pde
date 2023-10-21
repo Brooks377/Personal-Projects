@@ -3,7 +3,6 @@ PVector complexStart;
 PVector additivePoint;
 PVector complexAdditive;
 ArrayList<PVector> drawPoints; // in complex form
-color[] storePixels; // not rlly needed anymore
 PVector zoomPointAxes;
 PVector zoomPoint;
 
@@ -32,7 +31,6 @@ void setup() {
     additivePoint = new PVector(0, 0);
     complexAdditive = new PVector(0, 0);
     drawPoints = new ArrayList<>();
-    storePixels = new color[(width * height)];
     zoomPointAxes = new PVector();
     zoomPoint = new PVector();
     scaleStore = new PVector[2];
@@ -48,7 +46,7 @@ void setup() {
     axesOn = true;
     beforeZoom = 0.0;
     afterZoom = 0.0;
-    zoomDist = 1;
+    zoomDist = 0;
 }
 
 void draw() {
@@ -57,22 +55,30 @@ void draw() {
     translate(width / 2, height / 2); // center axes
     scale(scaleVal);
     
+    // paint Mandelbrot set
     if (MBactive) {
         paintMBSet();
     }
     
-    stroke(255);
-    line(0, height, 0, -height); // y-axis
-    line(width, 0, -width, 0); // x-axis
-    
-    // add axes labels
     fill(255);
     if (axesOn) {
+        
+        // axes
+        stroke(255);
+        line(0, height, 0, -height); // y-axis
+        line(width, 0, -width, 0); // x-axis
+        
+        // boundary of no return
+        noFill();
+        circle(0, 0, 400);
+        
+        // complex axis labels
         text("i", 6, -96);
         line( -3, -100, 3, -100);
         text("-i", 6, 105);
         line( -3, 100, 3, 100);
         
+        // real axis labels
         text("1", 97, 12);
         line(100, -3, 100, 3);
         text("-1", -103, 12);
@@ -88,6 +94,7 @@ void draw() {
     // println(additivePoint);
     // println(mouseX, mouseY);
     // println(zoomPoint);
+    // println(zoomDist);
     // ----------------------------------------
     
     // input point from where you click
@@ -136,11 +143,13 @@ void draw() {
         }
         
         if (key == '-') {
-            zoomDist -= 5;
+            if (zoomDist > 0) {
+                zoomDist -= 1;
+            }
         }
         
         if (key == '=') {
-            zoomDist += 5;
+            zoomDist += 1;
         }
         
         if (key == CODED) {
@@ -165,9 +174,6 @@ void draw() {
     
     fill(220, 170, 0);
     point(additivePoint.x, -additivePoint.y);
-    
-    noFill();
-    circle(0, 0, 400);
     
     // draw line from startingPoint to squared result in complex plane
     drawLines(drawPoints);
@@ -207,7 +213,6 @@ public void paintMBSet() {
         // test that complex number for tend to inf
         color pointColor = color(0, 0, 0);
         PVector z = new PVector(0, 0);
-        int j = 0;
         
         if (i == 0) {
             scaleStore[0] = new PVector(c.x, c.y);
@@ -215,11 +220,12 @@ public void paintMBSet() {
             scaleStore[1] = new PVector(c.x, c.y);
         }
         
+        int j = 0;
         for (j = 0; j < maxRecursions; j++) {
             z = complexMultiply(z, z);
             z = complexAdd(z, c);
             
-            if (mag(z.x, z.y) > maxMag) {
+            if (((z.x * z.x) + (z.y * z.y)) > (maxMag * maxMag)) {
                 break;
             }
         }
@@ -228,7 +234,6 @@ public void paintMBSet() {
         } else {
             pixels[i] = color((map(j, 0, maxRecursions, 10, 255)), 255, 255);
         }
-        storePixels[i] = pixels[i]; // FIXME
     }
     updatePixels();
 }
@@ -237,7 +242,12 @@ public PVector convertPixeltoComplex(int i) {
     if (!zoomActive) {
         zoomPoint.set(0, 0);
     }
-    float dim = (float)(2.0 / Math.pow(1.05, zoomDist));
+    float dim = 2.0;
+    if (zoomDist > 0) {
+        // start at 2 and have it get closer and closer to zero (zD -> [1, 1000])
+        float zoomFactor = pow(2, zoomDist);
+        dim /= zoomFactor;
+    }
     int row = i % 1000;
     int col = i / 1000;
     float a = zoomPoint.x + ( -dim) + (((dim + dim) / 1000.0) * row);
