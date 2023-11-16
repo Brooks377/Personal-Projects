@@ -9,6 +9,7 @@ PVector zoomPoint;
 int linesNum;
 int drawIndex;
 float scaleVal;
+float dim;
 boolean MBactive;
 boolean zoomActive;
 boolean axesOn;
@@ -25,12 +26,14 @@ void setup() {
     colorMode(HSB);
     frameRate(30);
     
-    // data members
+    // drawing lines members
     startingPoint = new PVector(0, 0);
     complexStart = new PVector(0, 0);
     additivePoint = new PVector(0, 0);
     complexAdditive = new PVector(0, 0);
     drawPoints = new ArrayList<>();
+    
+    // MB set related zooming members
     zoomPointAxes = new PVector();
     zoomPoint = new PVector();
     scaleStore = new PVector[2];
@@ -38,15 +41,19 @@ void setup() {
         scaleStore[i] = new PVector();
     }
     
+    // parameter-like members
     linesNum = 100;
     scaleVal = 2.5;
     drawIndex = 0;
-    MBactive = false;
-    zoomActive = false;
-    axesOn = true;
     beforeZoom = 0.0;
     afterZoom = 0.0;
     zoomDist = 0;
+    dim = 2;
+    
+    // booleans
+    MBactive = false;
+    zoomActive = false;
+    axesOn = true;
 }
 
 void draw() {
@@ -59,8 +66,23 @@ void draw() {
     if (MBactive) {
         paintMBSet();
     }
-    
     fill(255);
+    
+    // menu text (might add on-screen but too busy atm)
+    /*
+    Shift + Click = move additive point
+    Control + Click = move starting point (MB starts at 0)
+    
+    Shift + Z = choose zoom point with mouse location
+    "=" key zooms in
+    "-" key zooms out
+    
+    Shift + M = shows the Mandelbrot Set
+    Shift + X = show/stop-showing axes and axes labels
+    Shift + C = clear MB set from screen (& resets zoom)
+    */
+    
+    
     if (axesOn) {
         
         // axes
@@ -82,7 +104,7 @@ void draw() {
         text("1", 97, 12);
         line(100, -3, 100, 3);
         text("-1", -103, 12);
-        line( -100, -3, -100, 3);
+        line( -100, -3, -100, 3);        
     }
     
     // ----------------------------------------
@@ -104,6 +126,8 @@ void draw() {
     // create the rest of the list with recursive method
     drawIndex = 0;
     fillDrawList(complexStart, complexAdditive);
+    
+    // TODO: refactor user input block
     
     // user input block
     if (keyPressed && mousePressed) {
@@ -145,13 +169,16 @@ void draw() {
         if (key == '-') {
             if (zoomDist > 0) {
                 zoomDist -= 1;
+                // println("current dim: " + dim); // DEBUG
             }
         }
         
         if (key == '=') {
             zoomDist += 1;
+            // println("current dim: " + dim); // DEBUG
         }
         
+        // allow shifting around the zoomed in area with arrow keys
         if (key == CODED) {
             float incValX = (scaleStore[1].x - scaleStore[0].x) / 100;
             float incValY = (scaleStore[0].y - scaleStore[1].y) / 100;
@@ -186,10 +213,8 @@ void draw() {
     
 }
 
+// use keyPressed for single activation events
 void keyPressed() {
-    if (key == 'R') {
-        loop();
-    }
     
     if (key == 'C') {
         MBactive = false;
@@ -209,49 +234,68 @@ public void paintMBSet() {
     loadPixels();
     for (int i = 0; i < (width * height); i++) {
         PVector c = convertPixeltoComplex(i);
+        // if (i == 0 || i == 999999) { // DEBUG (see first & last complex value)
+        //     println(c);
+    // }
+        
         // each pixel index is a complex number
-        // test that complex number for tend to inf
+        // test how/if that complex number tend to inf
         color pointColor = color(0, 0, 0);
         PVector z = new PVector(0, 0);
         
+        // grab corners to approx. current scale (for movement)
         if (i == 0) {
             scaleStore[0] = new PVector(c.x, c.y);
         } else if (i == 999999) {
             scaleStore[1] = new PVector(c.x, c.y);
         }
         
+        // perform "z^2 + c" iteratively with c := each pixel
         int j = 0;
         for (j = 0; j < maxRecursions; j++) {
             z = complexMultiply(z, z);
             z = complexAdd(z, c);
             
+            // if the magnitude of vector ever reaches semi-arbitrary stopping point
             if (((z.x * z.x) + (z.y * z.y)) > (maxMag * maxMag)) {
                 break;
             }
         }
-        if (j == maxRecursions) {
+        if (j == maxRecursions) { // if it converged, paint black
             pixels[i] = pointColor;
-        } else {
+        } else { // if it diverged, paint it based on number of iterations to escape
             pixels[i] = color((map(j, 0, maxRecursions, 10, 255)), 255, 255);
         }
     }
-    updatePixels();
+    updatePixels(); // updates the processing global var. pixels[] array
 }
 
+// Takes a pixel index as input and produces a complex number that represents that point
 public PVector convertPixeltoComplex(int i) {
-    if (!zoomActive) {
+    if (!zoomActive) { // no zoom, so (0, 0) is center-point
         zoomPoint.set(0, 0);
     }
-    float dim = 2.0;
-    if (zoomDist > 0) {
-        // start at 2 and have it get closer and closer to zero (zD -> [1, 1000])
+    dim = 2.0;
+    if (zoomDist > 0) { // if user inputted a zoom
+        // create zoomfactor based on current value of zoomDist
+        // zoomDist range -> (0, inf)
         float zoomFactor = pow(2, zoomDist);
         dim /= zoomFactor;
     }
     int row = i % 1000;
     int col = i / 1000;
+    
+    // TODO: find better (hopefully simpler) way to scale/zoom
+    // TODO: find way to continue zooming infinitely small
+    
+    // IDEA: create user-defined data structure that can do operations as if it is a 
+    //       very small number, but remain large to avoid floating point inprecision
+    
+    // original x-value minus zoomDim + (("dist_across" / 1000 pixels) * current row)
     float a = zoomPoint.x + ( -dim) + (((dim + dim) / 1000.0) * row);
+    // orignal y-value plus zoomDim - (("dist_across") / 1000 pixels) * current column)
     float b = zoomPoint.y + dim - (((dim + dim) / 1000.0) * col);
+    
     PVector complexOutput = new PVector(a, b);
     return complexOutput;
 }
@@ -284,6 +328,7 @@ public void fillDrawList(PVector start, PVector additive) {
         nextPoint = complexAdd(nextPoint, additive);
         drawPoints.add(nextPoint);
         drawIndex++;
+        // recursive call to have end-to-beginning vector placement
         fillDrawList(nextPoint, additive);
     }
 }
