@@ -7,13 +7,13 @@ ArrayList<ArrayList<Particle>> particles;
 void setup() {
     background(0);
     frameRate(30);
-    size(1450, 500);
+    size(900, 500);
     font = createFont("Times New Roman", 50, true);
     textFont(font);
     textSize(128);
     fill(255);
     noStroke();
-    String message = "Play something other                            than kirby";
+    String message = "Harry has the                         BIG GAY";
     
     characters = new ArrayList<>();
     particles = new ArrayList<>();
@@ -82,7 +82,7 @@ void saveCharacters() {
         }
         
         // acount for spaces
-        if (i == 4 || i == 14 || i == 20 || i == 52) {
+        if (i == 4 || i == 8 || i == 41) {
             XcharOffset += 35;
         }
         
