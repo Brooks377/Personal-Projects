@@ -5,11 +5,13 @@ Boolean inTraining;
 Boolean eachPoint;
 int trainingIndex = 0;
 
+int trainCounter = 0;
+
 void setup() {
-    size(800, 800);
+    size(1000, 1000);
     
     brain = new Perceptron(0.1, 3);
-    points = new Point[500];
+    points = new Point[800];
     inTraining = false;
     eachPoint = false;
     
@@ -27,7 +29,7 @@ void draw() {
     Point p2 = new Point(1, f(1));
     line(p1.pixelX(), p1.pixelY(), p2.pixelX(), p2.pixelY());
     
-    // draw wut the perceptron THINKS the reference line is
+    // draw what the perceptron THINKS the reference line is by guessing
     Point p3 = new Point( -1, brain.guessY( -1));
     Point p4 = new Point(1, brain.guessY(1));
     line(p3.pixelX(), p3.pixelY(), p4.pixelX(), p4.pixelY());
@@ -35,6 +37,7 @@ void draw() {
     
     // DEBUG
     //println(brain.weights);
+    //println(trainCounter);
     
     for (Point pt : points) {
         // show training points
@@ -56,14 +59,16 @@ void draw() {
         
         if (inTraining) { // train on all points each frame
             brain.train(inputs, target);
+            trainCounter++;
         }
     }
     
-    if (eachPoint) { // train one point per frame
+    if (eachPoint) { // train one point per frame (demo only, too slow)
         Point training = points[trainingIndex++];
         float[] inputs = {training.x, training.y, training.bias};
         int target = training.label;
         brain.train(inputs, target);
+        trainCounter++;
         if (trainingIndex == points.length) {
             trainingIndex = 0;
         }
@@ -78,6 +83,7 @@ void mousePressed() {
         float[] inputs = {pt.x, pt.y, pt.bias};
         int target = pt.label;
         brain.train(inputs, target);
+        trainCounter++;
     }
 }
 
