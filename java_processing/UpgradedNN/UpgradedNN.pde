@@ -1,4 +1,5 @@
 MultilayerPerceptron brain;
+// training data for XOR: {input, input, output}
 double[][] trainingSet = {
     {1, 0, 1} ,
     {0, 1, 1} ,
@@ -27,7 +28,7 @@ void draw() {
     background(0);
     
     // each frame, train on a number of random points
-    for (int i = 0; i < 20; i++) {
+    for (int i = 0; i < 50; i++) {
         int trainingIndex = (int)(Math.random() * trainingSet.length);
         double[] inputs = {trainingSet[trainingIndex][0], trainingSet[trainingIndex][1]};
         double[] targets = {trainingSet[trainingIndex][2]};
