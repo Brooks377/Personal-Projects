@@ -12,7 +12,7 @@ fn main() {
         // ensure that the stdout doesn't buffer until eol (necessary for print! but not println!)
         io::stdout() // fmt comment
             .flush()
-            .expect("Failed to flush");
+            .expect("Failed to flush ");
 
         let mut guess = String::new();
         io::stdin()
@@ -22,7 +22,7 @@ fn main() {
         let guess = match guess.trim().parse::<u32>() {
             Ok(num) => num,
             Err(_) => {
-                if guess.trim().eq_ignore_ascii_case("quit") {
+                if guess.trim().eq_ignore_ascii_case("quit") || guess.trim().eq_ignore_ascii_case("q") {
                     println!("Thanks for playing! Goodbye!");
                     break;
                 } else {
